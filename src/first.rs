@@ -1,6 +1,8 @@
 // first.rs
 // The first linked list from the tutorial series rust-unofficial.github.io/too-many-lists
 
+use std::mem;
+
 pub struct List {
     head: Link,
 }
@@ -17,7 +19,7 @@ enum Link {
 // struct represents a node in the linked list. structs in rust are similar to structs in C/C++.
 struct Node {
     elem: i32,  // i32 is a 32 bit integer
-    next: List, // List is defined below.
+    next: Link, // List is defined below.
 }
 
 
@@ -33,5 +35,31 @@ impl List {
         List { head: Link::Empty }
 
         // note we didn't return anything. In rust, the last expression in a function is the return value. So we don't need to explicitly return anything.
+    }
+
+    /// ### QUICK PRIMER ON RUST OWNERSHIP (I can be very wrong but this is what I have gathered so far)
+    /// non-static methods in rust look like follows:
+    /// ```rust
+    /// fn foo(self, arg1: Type1, arg2: Type2) -> ReturnType {
+    ///    // body
+    /// }
+    /// ```
+    /// `self` here can take three types:
+    /// 1. `self` - this is a value of the type that we are implementing methods on. This is the most common type of `self` that you will see. This is similar to `this` in C++, and represents the concept of pass by value.
+    /// 2. `&self` - this is a reference to the type that we are implementing methods on. This is similar to `this` in C++, and represents the concept of pass by const reference.
+    /// 3. `&mut self` - this is a mutable reference to the type that we are implementing methods on. This is similar to `this` in C++, and represents the concept of pass by reference.
+    /// 
+    /// push is a method that takes a mutable reference to self, and an i32, and returns nothing. (Why mutable ref to self? Because we are modifying the list, so we need a mutable reference to it (and not a copy or a shared reference))
+    pub fn push(&mut self, elem: i32) {
+
+        // create a new node. the value is the provided elem, while the next is the current head.
+        let new_node = Box::new(Node {
+            elem: elem,
+            // next: self.head, // this is wrong, because we are trying to move self.head into next, but self.head is not owned by us, we just 'borrowed' it, and the new_node will remain partially initialized once the borrowed contents are returned back. What we can do is replace the contents with something else.
+            next: mem::replace(&mut self.head, Link::Empty), // yup we just pulled a devious lick. replaced the borrowed self.head with empty, and then moved the borrowed head to the next of the next node.
+        });
+        
+        // set the head of the linked list to the new node.
+        self.head = Link::More(new_node)
     }
 }
