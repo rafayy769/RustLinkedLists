@@ -39,10 +39,10 @@ impl List {
 
     /// ### QUICK PRIMER ON RUST OWNERSHIP (I can be very wrong but this is what I have gathered so far)
     /// non-static methods in rust look like follows:
-    /// ```rust
-    /// fn foo(self, arg1: Type1, arg2: Type2) -> ReturnType {
-    ///    // body
-    /// }
+    /// ```
+    // / fn foo(self, arg1: Type1, arg2: Type2) -> Some {
+    // /    // body
+    // / }
     /// ```
     /// `self` here can take three types:
     /// 1. `self` - this is a value of the type that we are implementing methods on. This is the most common type of `self` that you will see. This is similar to `this` in C++, and represents the concept of pass by value.
@@ -95,5 +95,43 @@ impl List {
         //     }
         // }
         // but let's stick with verbosity for now
+    }
+
+}
+// We are creating a module for tests, right inside the same file. cfg(test) specifies this will be built only when compiling for tests
+#[cfg(test)]
+mod test
+{
+    use super::List;
+
+    #[test]
+    // #test specifies that this is a test
+    fn basics() {
+        // create a mutable list using the static constructor defined in impl
+        let mut list = List::new();
+
+        // assert_eq! macro compares the two things you give it, and panics the program if they don't match.
+        assert_eq!(list.pop(), None);
+
+        // let's populate list
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        // testing normal removal
+        assert_eq!(list.pop(), Some(3));
+        assert_eq!(list.pop(), Some(2));
+
+        // Push some more just to make sure nothing's corrupted
+        list.push(4);
+        list.push(5);
+
+        // Check normal removal
+        assert_eq!(list.pop(), Some(5));
+        assert_eq!(list.pop(), Some(4));
+
+        // Check exhaustion
+        assert_eq!(list.pop(), Some(1));
+        assert_eq!(list.pop(), None);
     }
 }
