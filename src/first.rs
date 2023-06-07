@@ -98,6 +98,25 @@ impl List {
     }
 
 }
+
+// in rust, the destructor is implemented via the `drop` method.
+impl Drop for List
+{
+    fn drop(&mut self) {
+        let mut cur_link = mem::replace(&mut self.head, Link::Empty);
+
+        // while let implies that loop until cur_link gives a More link and not an empty link. once we have hit an empty link, we need to stop
+        while let Link::More(mut boxed_node) = cur_link 
+        {
+            // replaces the borrowed memory's next link with the Empty link, and 
+            cur_link = mem::replace(&mut boxed_node.next, Link::Empty);
+            // boxed_node goes out of scope and gets dropped here;
+            // but its Node's `next` field has been set to Link::Empty
+            // so no unbounded recursion occurs.
+        }
+    }
+}
+
 // We are creating a module for tests, right inside the same file. cfg(test) specifies this will be built only when compiling for tests
 #[cfg(test)]
 mod test
