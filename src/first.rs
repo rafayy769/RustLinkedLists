@@ -62,4 +62,38 @@ impl List {
         // set the head of the linked list to the new node.
         self.head = Link::More(new_node)
     }
+
+    // the pop method, that can either return a value from the list, or can return an empty value.
+    pub fn pop(&mut self) -> Option<i32> {
+        // pattern matching for self.head. self.head is an enum Link that can have any of the following values, which we can handle individually.
+
+        let result; // what we will return.
+
+        // by default match moves its content into the new branch, but we can't do this since we have a mutable reference here. we can get a shared reference tho, but then we won't be able to modify the head. hence, we should replace and return the self.head since we will be replacing the self.head.
+        match mem::replace(&mut self.head, Link::Empty)
+        {
+            Link::Empty => {
+                result = None;
+            }
+            Link::More(node) => {
+                result = Some(node.elem);
+                self.head = node.next;
+            }
+        };
+
+        // things ending with ! indicate macros. this macro indicates that this function hasnt been implemented yet fully, and crashes the program in a controlled manner when we reach here.
+        // unimplemented!()
+
+        result
+
+        // A more concise way to write the above function would be:
+        // match mem::replace(&mut self.head, Link::Empty) {
+        //     Link::Empty => None,
+        //     Link::More(node) => {
+        //         result = Some(node.elem);
+        //         self.head = node.next
+        //     }
+        // }
+        // but let's stick with verbosity for now
+    }
 }
